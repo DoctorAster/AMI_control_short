@@ -130,17 +130,39 @@ def new_channel_catch ():
 
 def check_status(CallerID):
     status = -1
-    if CallerID == 677990:
+    if CallerID == '7172677990':
         status = 0
     else:
-        status - 1
+        status = 1
     return (status)
 
 
 
-def channel_hangup(channelID):
-    
-
+def channel_hangup(channelID, action_id):
+    ami_resp = b'\r\n'
+    output = telnetObj.read_until(ami_resp)
+    command_hangup = 'Hangup'
+    action_id += 1
+    ami_command_login_str = 'Action: {}\n' \
+                            'ActionID: {}\n' \
+                            'Channel: {}\n' \
+                            'Cause: {}\n\n'.format(command_hangup, action_id, channelID, "Restricted")
+    ami_command_login = ami_command_login_str.encode('utf-8')
+    telnetObj.write(ami_command_login)
+    print(output)
+    ami_resp = b'\r\n'
+    output = telnetObj.read_until(ami_resp)
+    print(output)
+    ami_resp = b'\r\n'
+    output = telnetObj.read_until(ami_resp)
+    print(output)
+    ami_resp = b'\r\n'
+    output = telnetObj.read_until(ami_resp)
+    print(output)
+    ami_resp = b'\r\n'
+    output = telnetObj.read_until(ami_resp)
+    print(output)
+    return action_id
 
 # ****************** START ******************
 
@@ -170,7 +192,16 @@ channels = {}
 calls = {}
 
 action_id = login (action_id, username, password)
-new_channel = new_channel_catch()
-CallerID = new_channel[CallerIDNum]
-status = check_status(CallerID)
-if status == 0:
+
+while True:
+    new_channel = new_channel_catch()
+    CallerID = new_channel[CallerIDNum]
+    print(CallerID)
+    status = check_status(CallerID)
+    print (status)
+    if status == 0:
+        channelID = new_channel[Channel]
+        action_id = channel_hangup(channelID, action_id)
+        print("==========>HANGUP<==========")
+    else:
+        print("run")
